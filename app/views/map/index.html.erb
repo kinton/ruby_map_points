@@ -1,0 +1,128 @@
+<script src="https://api-maps.yandex.ru/2.1/?apikey=<%= @apiKey %>&lang=ru_RU" type="text/javascript"></script>
+<div id="map" style="width: 95vw; height: 80vh; margin: auto"></div>
+<script type="text/javascript">
+    let map
+    let collection
+    let jsonMap = {}
+    ymaps.ready(init);
+    function init(){ 
+        // Создание карты.    
+        map = new ymaps.Map("map", {
+            center: <%= @mapCenter %>,
+            zoom: <%= @zoom %>
+        })
+
+        collection = new ymaps.GeoObjectCollection()
+
+        // заполнение карты точек
+        <% @map_points.each do |point| %>
+        	jsonMap[<%= point.id %>] = {"coords": [<%= point.latitude %>, <%= point.longitude %>]}
+        <% end %>
+        rebuildMap()
+    }
+
+    var rebuildMap = () => {
+	    collection.removeAll()
+    	for (key in jsonMap) {
+
+    		var placemark = new ymaps.Placemark(jsonMap[key]["coords"], {
+	            //balloonContent: 'текст по нажатию на точку',
+	            //iconCaption: 'текст точки'
+	        }, {
+	            preset: 'islands#blueCircleDotIconWithCaption',
+	            iconCaptionMaxWidth: '50'
+	        })
+        	collection.add(placemark)
+        }
+        map.geoObjects.add(collection);
+    }
+</script>
+
+<div>
+	<button style="margin: 20px 20px">Добавить точку</button>
+	<input type="text" name="latitude" value="55.75">
+	<input type="text" name="longitude" value="37.65">
+</div>
+
+<div>
+	<ul id="points_holder">
+	<% @map_points.each do |point| %>
+		<li id="point_<%= point.id %>">id: <%= point.id %> latitude: <%= point.latitude %> longitude: <%= point.longitude %> <button point_id="<%= point.id %>">Удалить</button></li>
+	<% end %>
+	</ul>
+</div>
+
+<script>
+	//добавление
+	document.getElementsByTagName("button")[0].addEventListener('click', ()=>{
+		fetch('/map_points', {
+			method: "POST",
+			headers: {
+		        'content-type': 'application/json'
+		    },
+			body: JSON.stringify({
+				latitude: document.getElementsByName("latitude")[0].value,
+				longitude: document.getElementsByName("longitude")[0].value
+			})
+		})
+		.then(function(response) {
+			console.log(response)
+			//alert(response.headers.get('Content-Type'));
+			//alert(response.status); //201
+			return response.json()
+		})
+		.then(function(data) {
+			console.log("data:", data)
+
+			let ul = document.getElementById("points_holder")
+			let li = document.createElement('li')
+			li.id = "point_" + data.id
+			let button = document.createElement("button")
+			button.setAttribute("point_id", data.id)
+			button.innerHTML = "Удалить"
+			li.innerHTML = "id: " + data.id + " latitude: " + data.latitude + " longitude: " + data.longitude + " "
+			li.appendChild(button)
+			ul.appendChild(li)
+
+			button.addEventListener('click', ()=>{deleteQuery(event.target.attributes.point_id.value)})
+
+			jsonMap[data.id] = {"coords": [data.latitude, data.longitude]}
+			rebuildMap()
+		})
+		.catch( alert )
+	})
+
+	//удаление
+	for (var i = 1; i < document.getElementsByTagName("button").length; i++) {
+		document.getElementsByTagName("button")[i].addEventListener('click', ()=>{deleteQuery(event.target.attributes.point_id.value)})
+	}
+	var deleteQuery = (point_id) => {
+		let link = '/map_points/' + point_id
+		fetch(link, {
+			method: "DELETE",
+			headers: {
+		        'content-type': 'application/json'
+		    }
+		})
+		.then(function(response) {
+			console.log(response)
+			return response.json()
+		})
+		.then(function(data) {
+			console.log("data:", data)
+			let li = document.getElementById("point_" + data.id)
+			li.parentNode.removeChild(li)
+			delete jsonMap[data.id]
+			rebuildMap()
+
+		})
+		.catch( alert )
+	}
+
+</script>
+
+<style>
+	body {
+		margin: 0;
+	}
+</style>
