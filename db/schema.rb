@@ -10,16 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_23_112232) do
+ActiveRecord::Schema.define(version: 2019_06_24_222249) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "map_points", force: :cascade do |t|
-    t.float "latitude"
-    t.float "longitude"
+    t.float "lat"
+    t.float "lon"
+    t.integer "tm"
+    t.bigint "walon_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["walon_id"], name: "index_map_points_on_walon_id"
+  end
+
+  create_table "walons", force: :cascade do |t|
+    t.integer "walon_id"
+    t.float "lat"
+    t.float "lon"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "map_points", "walons"
 end

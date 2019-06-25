@@ -1,128 +1,487 @@
-<script src="https://api-maps.yandex.ru/2.1/?apikey=<%= @apiKey %>&lang=ru_RU" type="text/javascript"></script>
-<div id="map" style="width: 95vw; height: 80vh; margin: auto"></div>
-<script type="text/javascript">
-    let map
-    let collection
-    let jsonMap = {}
-    ymaps.ready(init);
-    function init(){ 
-        // Создание карты.    
-        map = new ymaps.Map("map", {
-            center: <%= @mapCenter %>,
-            zoom: <%= @zoom %>
-        })
+<script src="https://api-maps.yandex.ru/2.1/?apikey=<%= @maps_token %>&lang=ru_RU" type="text/javascript"></script>
+<div ng-app="TelauApp">
+	<div ng-controller="DotsController" ng-init="init(<%= @map_points.to_json %>, <%= @map_center %>, <%= @zoom %>)">
+		<div id="map" style="width: 95vw; height: 80vh; margin: auto"></div>
+		
+		<!--
+		<div>
+			<button ng-click="addPoint();" style="margin: 20px 20px">Добавить точку</button>
+			<input type="text" name="lat" value="55.75">
+			<input type="text" name="lon" value="37.65">
+		</div>
+		-->
 
-        collection = new ymaps.GeoObjectCollection()
-
-        // заполнение карты точек
-        <% @map_points.each do |point| %>
-        	jsonMap[<%= point.id %>] = {"coords": [<%= point.latitude %>, <%= point.longitude %>]}
-        <% end %>
-        rebuildMap()
-    }
-
-    var rebuildMap = () => {
-	    collection.removeAll()
-    	for (key in jsonMap) {
-
-    		var placemark = new ymaps.Placemark(jsonMap[key]["coords"], {
-	            //balloonContent: 'текст по нажатию на точку',
-	            //iconCaption: 'текст точки'
-	        }, {
-	            preset: 'islands#blueCircleDotIconWithCaption',
-	            iconCaptionMaxWidth: '50'
-	        })
-        	collection.add(placemark)
-        }
-        map.geoObjects.add(collection);
-    }
-</script>
-
-<div>
-	<button style="margin: 20px 20px">Добавить точку</button>
-	<input type="text" name="latitude" value="55.75">
-	<input type="text" name="longitude" value="37.65">
+		<div style="margin: 20px;">
+			<button ng-click="addPoint();">Отправить JSON</button><br>
+			<textarea name="json" id="" cols="30" rows="10"></textarea>
+		</div>
+		
+		<div >
+			<ul>
+				<li ng-repeat="(id, dot) in jsonMap">
+					id: {{ id }};
+					lat: {{ dot.coords[0] }};
+					lon: {{ dot.coords[1] }};
+					<button ng-click="deletePoint(id);" point_id="{{ id }}">Удалить</button>
+				</li>
+			</ul>
+		</div>
+	</div>
 </div>
 
-<div>
-	<ul id="points_holder">
-	<% @map_points.each do |point| %>
-		<li id="point_<%= point.id %>">id: <%= point.id %> latitude: <%= point.latitude %> longitude: <%= point.longitude %> <button point_id="<%= point.id %>">Удалить</button></li>
-	<% end %>
-	</ul>
-</div>
-
+<!-- просто чтобы заполнить примером json -->
 <script>
-	//добавление
-	document.getElementsByTagName("button")[0].addEventListener('click', ()=>{
-		fetch('/map_points', {
-			method: "POST",
-			headers: {
-		        'content-type': 'application/json'
-		    },
-			body: JSON.stringify({
-				latitude: document.getElementsByName("latitude")[0].value,
-				longitude: document.getElementsByName("longitude")[0].value
-			})
-		})
-		.then(function(response) {
-			console.log(response)
-			//alert(response.headers.get('Content-Type'));
-			//alert(response.status); //201
-			return response.json()
-		})
-		.then(function(data) {
-			console.log("data:", data)
-
-			let ul = document.getElementById("points_holder")
-			let li = document.createElement('li')
-			li.id = "point_" + data.id
-			let button = document.createElement("button")
-			button.setAttribute("point_id", data.id)
-			button.innerHTML = "Удалить"
-			li.innerHTML = "id: " + data.id + " latitude: " + data.latitude + " longitude: " + data.longitude + " "
-			li.appendChild(button)
-			ul.appendChild(li)
-
-			button.addEventListener('click', ()=>{deleteQuery(event.target.attributes.point_id.value)})
-
-			jsonMap[data.id] = {"coords": [data.latitude, data.longitude]}
-			rebuildMap()
-		})
-		.catch( alert )
-	})
-
-	//удаление
-	for (var i = 1; i < document.getElementsByTagName("button").length; i++) {
-		document.getElementsByTagName("button")[i].addEventListener('click', ()=>{deleteQuery(event.target.attributes.point_id.value)})
-	}
-	var deleteQuery = (point_id) => {
-		let link = '/map_points/' + point_id
-		fetch(link, {
-			method: "DELETE",
-			headers: {
-		        'content-type': 'application/json'
-		    }
-		})
-		.then(function(response) {
-			console.log(response)
-			return response.json()
-		})
-		.then(function(data) {
-			console.log("data:", data)
-			let li = document.getElementById("point_" + data.id)
-			li.parentNode.removeChild(li)
-			delete jsonMap[data.id]
-			rebuildMap()
-
-		})
-		.catch( alert )
-	}
-
+var a = {
+    "tm": 1561367237,
+    "events": [
+        {
+            "i": 18960170,
+            "t": "m",
+            "d": {
+                "t": 1561367218,
+                "f": 1073741827,
+                "tp": "ud",
+                "pos": {
+                    "y": 55.7800941467,
+                    "x": 37.6253509521,
+                    "c": 8,
+                    "z": 154,
+                    "s": 2,
+                    "sc": 11
+                },
+                "i": 33009,
+                "lc": 1720092676,
+                "rt": 1561367237,
+                "p": {
+                    "hdop": 1,
+                    "odo": 0,
+                    "adc2": 108.537,
+                    "adc12": 28342,
+                    "adc3": 268,
+                    "adc13": 268,
+                    "adc4": 3.8394,
+                    "adc14": 237,
+                    "adc6": 157.946,
+                    "adc16": 4184,
+                    "c1": 0,
+                    "c2": 0,
+                    "c3": 0,
+                    "c4": 0,
+                    "mcc": 250,
+                    "mnc": 1,
+                    "lac": 1601,
+                    "cell_id": 41474,
+                    "ta": 0,
+                    "gsm_lvl": 61,
+                    "0g": 0
+                }
+            }
+        },
+        {
+            "i": 18960170,
+            "t": "u",
+            "d": {
+                "prms": {
+                    "speed": 1561367218,
+                    "posinfo": {
+                        "v": {
+                            "y": 55.7800941467,
+                            "x": 37.6253509521,
+                            "z": 154,
+                            "c": 8,
+                            "sc": 11
+                        },
+                        "ct": 1561367218,
+                        "at": 1561367218
+                    },
+                    "hdop": 1561367218,
+                    "odo": 1561367218,
+                    "in": 1561367218,
+                    "in1": 1561367218,
+                    "in2": 1561367218,
+                    "in3": 1561367218,
+                    "in4": 1561367218,
+                    "in5": 1561367218,
+                    "in6": 1561367218,
+                    "in7": 1561367218,
+                    "in8": 1561367218,
+                    "in9": 1561367218,
+                    "in10": 1561367218,
+                    "in11": 1561367218,
+                    "in12": 1561367218,
+                    "in13": 1561367218,
+                    "in14": 1561367218,
+                    "in15": 1561367218,
+                    "in16": 1561367218,
+                    "in17": 1561367218,
+                    "in18": 1561367218,
+                    "in19": 1561367218,
+                    "in20": 1561367218,
+                    "in21": 1561367218,
+                    "in22": 1561367218,
+                    "in23": 1561367218,
+                    "in24": 1561367218,
+                    "in25": 1561367218,
+                    "in26": 1561367218,
+                    "in27": 1561367218,
+                    "in28": 1561367218,
+                    "in29": 1561367218,
+                    "in30": 1561367218,
+                    "in31": 1561367218,
+                    "in32": 1561367218,
+                    "adc2": {
+                        "v": 108.537,
+                        "ct": 1561367218,
+                        "at": 1561367218
+                    },
+                    "adc12": {
+                        "v": 28342,
+                        "ct": 1561367218,
+                        "at": 1561367218
+                    },
+                    "adc3": {
+                        "v": 268,
+                        "ct": 1561367218,
+                        "at": 1561367218
+                    },
+                    "adc13": {
+                        "v": 268,
+                        "ct": 1561367218,
+                        "at": 1561367218
+                    },
+                    "adc4": 1561367218,
+                    "adc14": 1561367218,
+                    "adc6": {
+                        "v": 157.946,
+                        "ct": 1561367218,
+                        "at": 1561367218
+                    },
+                    "adc16": {
+                        "v": 4184,
+                        "ct": 1561367218,
+                        "at": 1561367218
+                    },
+                    "c1": 1561367218,
+                    "c2": 1561367218,
+                    "c3": 1561367218,
+                    "c4": 1561367218,
+                    "mcc": 1561367218,
+                    "mnc": 1561367218,
+                    "lac": 1561367218,
+                    "cell_id": {
+                        "v": 41474,
+                        "ct": 1561367218,
+                        "at": 1561367218
+                    },
+                    "ta": 1561367218,
+                    "gsm_lvl": {
+                        "v": 61,
+                        "ct": 1561367218,
+                        "at": 1561367218
+                    },
+                    "0g": 1561367218
+                }
+            }
+        },
+        {
+            "i": 18960170,
+            "t": "m",
+            "d": {
+                "t": 1561367224,
+                "f": 1073741827,
+                "tp": "ud",
+                "pos": {
+                    "y": 55.7801399231,
+                    "x": 37.6253547668,
+                    "c": 4,
+                    "z": 154,
+                    "s": 2,
+                    "sc": 10
+                },
+                "i": 33008,
+                "lc": 1720092676,
+                "rt": 1561367237,
+                "p": {
+                    "hdop": 1,
+                    "odo": 0,
+                    "adc2": 108.4005,
+                    "adc12": 28307,
+                    "adc3": 165,
+                    "adc13": 165,
+                    "adc4": 5.346,
+                    "adc14": 330,
+                    "adc6": 157.946,
+                    "adc16": 4184,
+                    "c1": 0,
+                    "c2": 0,
+                    "c3": 0,
+                    "c4": 0,
+                    "mcc": 250,
+                    "mnc": 1,
+                    "lac": 1601,
+                    "cell_id": 41474,
+                    "ta": 0,
+                    "gsm_lvl": 61,
+                    "0g": 0
+                }
+            }
+        },
+        {
+            "i": 18960170,
+            "t": "u",
+            "d": {
+                "prms": {
+                    "speed": 1561367224,
+                    "posinfo": {
+                        "v": {
+                            "y": 55.7801399231,
+                            "x": 37.6253547668,
+                            "z": 154,
+                            "c": 4,
+                            "sc": 10
+                        },
+                        "ct": 1561367224,
+                        "at": 1561367224
+                    },
+                    "hdop": 1561367224,
+                    "odo": 1561367224,
+                    "in": {
+                        "v": 33008,
+                        "ct": 1561367224,
+                        "at": 1561367224
+                    },
+                    "in1": {
+                        "v": 0,
+                        "ct": 1561367224,
+                        "at": 1561367224
+                    },
+                    "in2": 1561367224,
+                    "in3": 1561367224,
+                    "in4": 1561367224,
+                    "in5": 1561367224,
+                    "in6": 1561367224,
+                    "in7": 1561367224,
+                    "in8": 1561367224,
+                    "in9": 1561367224,
+                    "in10": 1561367224,
+                    "in11": 1561367224,
+                    "in12": 1561367224,
+                    "in13": 1561367224,
+                    "in14": 1561367224,
+                    "in15": 1561367224,
+                    "in16": 1561367224,
+                    "in17": 1561367224,
+                    "in18": 1561367224,
+                    "in19": 1561367224,
+                    "in20": 1561367224,
+                    "in21": 1561367224,
+                    "in22": 1561367224,
+                    "in23": 1561367224,
+                    "in24": 1561367224,
+                    "in25": 1561367224,
+                    "in26": 1561367224,
+                    "in27": 1561367224,
+                    "in28": 1561367224,
+                    "in29": 1561367224,
+                    "in30": 1561367224,
+                    "in31": 1561367224,
+                    "in32": 1561367224,
+                    "adc2": {
+                        "v": 108.4005,
+                        "ct": 1561367224,
+                        "at": 1561367224
+                    },
+                    "adc12": {
+                        "v": 28307,
+                        "ct": 1561367224,
+                        "at": 1561367224
+                    },
+                    "adc3": {
+                        "v": 165,
+                        "ct": 1561367224,
+                        "at": 1561367224
+                    },
+                    "adc13": {
+                        "v": 165,
+                        "ct": 1561367224,
+                        "at": 1561367224
+                    },
+                    "adc4": {
+                        "v": 5.346,
+                        "ct": 1561367224,
+                        "at": 1561367224
+                    },
+                    "adc14": {
+                        "v": 330,
+                        "ct": 1561367224,
+                        "at": 1561367224
+                    },
+                    "adc6": 1561367224,
+                    "adc16": 1561367224,
+                    "c1": 1561367224,
+                    "c2": 1561367224,
+                    "c3": 1561367224,
+                    "c4": 1561367224,
+                    "mcc": 1561367224,
+                    "mnc": 1561367224,
+                    "lac": 1561367224,
+                    "cell_id": 1561367224,
+                    "ta": 1561367224,
+                    "gsm_lvl": 1561367224,
+                    "0g": 1561367224
+                }
+            }
+        },
+        {
+            "i": 18960170,
+            "t": "m",
+            "d": {
+                "t": 1561367226,
+                "f": 1073741827,
+                "tp": "ud",
+                "pos": {
+                    "y": 55.7801513672,
+                    "x": 37.6253547668,
+                    "c": 4,
+                    "z": 155,
+                    "s": 2,
+                    "sc": 9
+                },
+                "i": 33009,
+                "lc": 1720092676,
+                "rt": 1561367237,
+                "p": {
+                    "hdop": 1,
+                    "odo": 0,
+                    "adc2": 108.5721,
+                    "adc12": 28351,
+                    "adc3": 268,
+                    "adc13": 268,
+                    "adc4": 3.8394,
+                    "adc14": 237,
+                    "adc6": 157.946,
+                    "adc16": 4184,
+                    "c1": 0,
+                    "c2": 0,
+                    "c3": 0,
+                    "c4": 0,
+                    "mcc": 250,
+                    "mnc": 1,
+                    "lac": 1601,
+                    "cell_id": 41474,
+                    "ta": 0,
+                    "gsm_lvl": 61,
+                    "0g": 0
+                }
+            }
+        },
+        {
+            "i": 18960170,
+            "t": "u",
+            "d": {
+                "prms": {
+                    "speed": 1561367226,
+                    "posinfo": {
+                        "v": {
+                            "y": 55.7801513672,
+                            "x": 37.6253547668,
+                            "z": 155,
+                            "c": 4,
+                            "sc": 9
+                        },
+                        "ct": 1561367226,
+                        "at": 1561367226
+                    },
+                    "hdop": 1561367226,
+                    "odo": 1561367226,
+                    "in": {
+                        "v": 33009,
+                        "ct": 1561367226,
+                        "at": 1561367226
+                    },
+                    "in1": {
+                        "v": 1,
+                        "ct": 1561367226,
+                        "at": 1561367226
+                    },
+                    "in2": 1561367226,
+                    "in3": 1561367226,
+                    "in4": 1561367226,
+                    "in5": 1561367226,
+                    "in6": 1561367226,
+                    "in7": 1561367226,
+                    "in8": 1561367226,
+                    "in9": 1561367226,
+                    "in10": 1561367226,
+                    "in11": 1561367226,
+                    "in12": 1561367226,
+                    "in13": 1561367226,
+                    "in14": 1561367226,
+                    "in15": 1561367226,
+                    "in16": 1561367226,
+                    "in17": 1561367226,
+                    "in18": 1561367226,
+                    "in19": 1561367226,
+                    "in20": 1561367226,
+                    "in21": 1561367226,
+                    "in22": 1561367226,
+                    "in23": 1561367226,
+                    "in24": 1561367226,
+                    "in25": 1561367226,
+                    "in26": 1561367226,
+                    "in27": 1561367226,
+                    "in28": 1561367226,
+                    "in29": 1561367226,
+                    "in30": 1561367226,
+                    "in31": 1561367226,
+                    "in32": 1561367226,
+                    "adc2": {
+                        "v": 108.5721,
+                        "ct": 1561367226,
+                        "at": 1561367226
+                    },
+                    "adc12": {
+                        "v": 28351,
+                        "ct": 1561367226,
+                        "at": 1561367226
+                    },
+                    "adc3": {
+                        "v": 268,
+                        "ct": 1561367226,
+                        "at": 1561367226
+                    },
+                    "adc13": {
+                        "v": 268,
+                        "ct": 1561367226,
+                        "at": 1561367226
+                    },
+                    "adc4": {
+                        "v": 3.8394,
+                        "ct": 1561367226,
+                        "at": 1561367226
+                    },
+                    "adc14": {
+                        "v": 237,
+                        "ct": 1561367226,
+                        "at": 1561367226
+                    },
+                    "adc6": 1561367226,
+                    "adc16": 1561367226,
+                    "c1": 1561367226,
+                    "c2": 1561367226,
+                    "c3": 1561367226,
+                    "c4": 1561367226,
+                    "mcc": 1561367226,
+                    "mnc": 1561367226,
+                    "lac": 1561367226,
+                    "cell_id": 1561367226,
+                    "ta": 1561367226,
+                    "gsm_lvl": 1561367226,
+                    "0g": 1561367226
+                }
+            }
+        }
+    ]
+};
+document.getElementsByName("json")[0].value = JSON.stringify(a);
 </script>
-
-<style>
-	body {
-		margin: 0;
-	}
-</style>

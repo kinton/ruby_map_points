@@ -13,3 +13,13 @@
  *= require_tree .
  *= require_self
  */
+body {
+	margin: 0;
+}
+
+.placemark {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background-color: red;
+}

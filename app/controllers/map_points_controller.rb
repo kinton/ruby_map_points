@@ -2,6 +2,7 @@ class MapPointsController < ApplicationController
 
 	def index
 		map_points = MapPoint.all
+		
 		render json: map_points
 	end
 
@@ -9,18 +10,43 @@ class MapPointsController < ApplicationController
 
 	def create
 		if params.blank?
-			format.json {render json: @map_point.errors, status: :unprocessable_entity}
-			exit
+			format.json {render json: params, status: :unprocessable_entity}
+			return
 		end
 
-		@map_point = MapPoint.new(params.require(:map_point).permit(:latitude, :longitude))
+		params[:events].each do |dot|
 
-		respond_to do |format|
-			if @map_point.save
-				format.json {render json: @map_point, status: :created }
+			if Walon.where(walon_id: dot[:i]).count != 0
+				@walon = Walon.find_by(walon_id: dot[:i])
 			else
-				format.json {render json: @map_point.errors, status: :unprocessable_entity}
+				@walon = Walon.new
+				@walon.walon_id = dot[:i]
 			end
+
+			if (dot[:d].has_key?(:pos))
+				@walon.lat = dot[:d][:pos][:y]
+				@walon.lon = dot[:d][:pos][:x]
+			else
+				next
+			end
+
+			unless @walon.save
+				render json: @walons.errors, status: :unprocessable_entity
+				return
+			end
+
+			@map_point = @walon.map_points.new(lat: dot[:d][:pos][:y], lon: dot[:d][:pos][:x], tm: params[:tm])
+
+			respond_to do |format|
+				if @map_point.save
+					format.json {render json: @map_point, status: :created }
+				else
+					format.json {render json: @map_point.errors, status: :unprocessable_entity}
+				end
+			end
+
+			break
+
 		end
 		
 	end
