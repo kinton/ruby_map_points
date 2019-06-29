@@ -5,5 +5,7 @@ class MapController < ApplicationController
   	@maps_token = "";
 
   	@map_points = MapPoint.all.map{|x| {id: x.id, coords:[x.lat, x.lon]}}
+  	#@map_points = {}
+  	#MapPoint.all.map{|x| @map_points[x.id] = {coords: [x.lat, x.lon]}}
   end
 end

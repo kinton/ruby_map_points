@@ -15,13 +15,7 @@ class MapPointsController < ApplicationController
 		end
 
 		params[:events].each do |dot|
-
-			if Walon.where(walon_id: dot[:i]).count != 0
-				@walon = Walon.find_by(walon_id: dot[:i])
-			else
-				@walon = Walon.new
-				@walon.walon_id = dot[:i]
-			end
+			@walon = Walon.find_or_create_by(walon_id: dot[:i])
 
 			if (dot[:d].has_key?(:pos))
 				@walon.lat = dot[:d][:pos][:y]
