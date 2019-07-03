@@ -4,7 +4,7 @@ class MapController < ApplicationController
   	@zoom = 7
   	@maps_token = "";
 
-  	@map_points = MapPoint.all.map{|x| {id: x.id, coords:[x.lat, x.lon]}}
+  	@map_points = Walon.all.map{|x| {id: x.id, walonId: x.walon_id, coords:[x.lat, x.lon]}}
   	#@map_points = {}
   	#MapPoint.all.map{|x| @map_points[x.id] = {coords: [x.lat, x.lon]}}
   end

@@ -5,7 +5,7 @@ app.controller('DotsController', function($scope) {
     $scope.init = function(dots, map_center, zoom) {
         dotsObj = {};
         dots.forEach(function(dot) {
-            dotsObj[dot.id] = {"coords": dot.coords};
+            dotsObj[dot.id] = {"coords": dot.coords, "walonId": dot.walonId};
         });
         $scope.dotsInit(dotsObj);
         $scope.mapInit(map_center, zoom);

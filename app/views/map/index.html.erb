@@ -10,19 +10,25 @@
 			<input type="text" name="lon" value="37.65">
 		</div>
 		-->
-
-		<div style="margin: 20px;">
-			<button ng-click="addPoint();">Отправить JSON</button><br>
-			<textarea name="json" id="" cols="30" rows="10"></textarea>
-		</div>
+        <div style="display: flex;">
+    		<div style="margin: 20px;">
+    			<button ng-click="addPoint();">Отправить JSON (если walon нет, то он будет создан)</button><br>
+                <p>стоит помнить, что в этом json учитывается первые найденные координаты по "адресу" a["events"][№]["d"]["pos"]["x"]/["y"]</p>
+    			<textarea name="json" id="" cols="30" rows="10"></textarea>
+    		</div>
+            <div style="margin: 20px;">
+                <button ng-click="startDemo();">Начать демо для walon с id = 18960170</button>
+            </div>
+        </div>
 		
 		<div >
 			<ul>
+                <b>Walons:</b>
 				<li ng-repeat="(id, dot) in jsonMap">
 					id: {{ id }};
-					lat: {{ dot.coords[0] }};
-					lon: {{ dot.coords[1] }};
-					<button ng-click="deletePoint(id);" point_id="{{ id }}">Удалить</button>
+					last_lat: {{ dot.coords[0] }};
+					last_lon: {{ dot.coords[1] }};
+					<button ng-click="deleteWalon(id);" point_id="{{ id }}">Удалить walon и все его точки</button>
 				</li>
 			</ul>
 		</div>
@@ -30,6 +36,8 @@
 </div>
 
 <!-- просто чтобы заполнить примером json -->
+<!-- стоит помнить, что в этом json учитывается первые найденные координаты -->
+<!-- по "адресу" a["events"][№]["d"]["pos"]["x"]/["y"] -->
 <script>
 var a = {
     "tm": 1561367237,
