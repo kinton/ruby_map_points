@@ -1,4 +1,30 @@
 <script src="https://api-maps.yandex.ru/2.1/?apikey=<%= @maps_token %>&lang=ru_RU" type="text/javascript"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.8.2/js/all.js"></script>
+<style>
+    .truck-direction {
+        margin: -16px 0 0 -16px;
+        width: 32px;
+        height: 32px;
+        border: 3px solid white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: red;
+        border-radius: 50%;
+        color: white;
+    }
+    .truck-direction .fa-truck {
+        margin: 0 0 0 2px;
+    }
+    .truck-direction-e {transform: rotate3d(0, 0, 0, 0deg);}
+    /*.truck-direction-ne {transform: rotate3d(0, 0, -1, 45deg);}
+    .truck-direction-n {transform: rotate3d(0, 0, -1, 90deg);}
+    .truck-direction-nw {transform: rotate3d(-1, 2, 0, 180deg);}*/
+    .truck-direction-w {transform: rotate3d(0, 1, 0, 180deg);}
+    /*.truck-direction-sw {transform: rotate3d(1, 2, 0, 180deg);}
+    .truck-direction-s {transform: rotate3d(1, 1, 0, 180deg);}
+    .truck-direction-se {transform: rotate3d(0, 0, 1, 45deg);}*/
+</style>
 <div ng-app="TelauApp">
 	<div ng-controller="DotsController" ng-init="init(<%= @map_points.to_json %>, <%= @map_center %>, <%= @zoom %>)">
 		<div id="map" style="width: 95vw; height: 80vh; margin: auto"></div>

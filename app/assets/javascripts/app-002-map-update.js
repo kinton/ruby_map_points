@@ -22,7 +22,7 @@ app.mapUpdater = function($scope){
         })
         .then(function(data) {
             //console.log("data:", data);
-            $scope.jsonMap[data.walon_id] = {"coords": [data.lat, data.lon]};
+            //$scope.jsonMap[data.walon_id] = {"coords": [data.lat, data.lon]};
         })
         .catch( alert );
     }
@@ -58,10 +58,12 @@ app.mapUpdater = function($scope){
         })
         .then(function(data) {
             for (i in data) {
+                //console.log($scope.jsonMap[data[i]["id"]]["coords"]);
+                //console.log(data[i]["coords"]);
+                $scope.startRoute($scope.jsonMap[data[i]["id"]]["coords"], data[i]["coords"], data[i]["id"]);
                 $scope.jsonMap[data[i]["id"]] = {"coords": data[i]["coords"]};
             }
-            //console.log($scope.jsonMap);
-            $scope.rebuildMap();
+            //$scope.rebuildMap();
             $scope.$apply();
         })
         .catch( alert );
@@ -95,11 +97,12 @@ app.mapUpdater = function($scope){
             a["events"][0]["d"]["pos"]["x"] += 0.02;
             a["events"][0]["d"]["pos"]["y"] += 0.02;
             $scope.addPoint(JSON.stringify(a));
+            //console.log("sended: ", a["events"][0]["d"]["pos"]);
 
         }, 1000);
         setTimeout(function() {
             clearInterval(demoTimer);
-            alert('демо окончено');
+            //alert('демо окончено');
         }, 30000);
     }
 }
